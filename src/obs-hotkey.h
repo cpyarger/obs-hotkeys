@@ -9,7 +9,7 @@
 void setup_ui();
 void register_gui();
 void reloadEvents();
-#define OBS_MIDI_VERSION "0.1"
+#define OBS_HOTKEY_VERSION "0.1"
 
 #define blog(level, msg, ...) blog(level, "[obs-hotkey] " msg, ##__VA_ARGS__)
 

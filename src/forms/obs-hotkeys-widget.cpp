@@ -55,11 +55,12 @@ void OBSHotkeysWidget::dothing(QKeySequence edit)
 void OBSHotkeysWidget::EditTrigger(QString type, obs_data_t *trigger)
 {
 
-	if (obs_data_get_string(trigger, "Type") == "Hotkeys") {
+	if (type == "Hotkeys") {
 
 		ui->keySequenceEdit->setKeySequence(
 			QKeySequence(obs_data_get_string(trigger, "Hotkey")));
+		emit(updated("Hotkeys", trigger));
 	}
 
-	emit(updated("Hotkeys", trigger));
+	
 }
