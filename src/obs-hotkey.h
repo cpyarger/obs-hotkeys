@@ -31,6 +31,7 @@ public:
 signals:
 	void EmitHotkey(QString actiontype, QString action);
 	void Trigger(QString actiontype, obs_data_t *action);
+	void LoadMappings();
 public slots:
 
 	void loadmap(obs_data_t *map);

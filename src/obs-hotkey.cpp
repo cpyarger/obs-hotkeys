@@ -12,13 +12,13 @@
 #include <iostream>
 #include <utility>
 #include "obs-hotkey.h"
-#include <window-control.hpp>
 #include "forms/obs-hotkeys-widget.hpp"
 #include <QtWidgets/QAction>
 #include <QtWidgets/QMainWindow>
 #include <QIcon>
 #include <util/dstr.h>
 #include "qt-wrappers.hpp"
+#include "mapper.hpp"
 using namespace std;
 
 
@@ -35,7 +35,7 @@ void register_gui()
 
 bool obs_module_load(void)
 {
-
+	HKC *HotkeyController = new HKC();
 	register_gui();
 	return true;
 }
@@ -45,11 +45,26 @@ void obs_module_unload()
 	blog(LOG_INFO, "goodbye!");
 }
 
-/**********************Hotkey Controller************ MAKE INTO PLUGIN ********************************/
+const char *tocchar(QKeySequence string)
+{
+	return string.toString().simplified().toStdString().c_str();
+}
+
+	/**********************Hotkey Controller************ MAKE INTO PLUGIN ********************************/
 
 HKC::HKC()
 {
+	ControlMapper *mapper = (ControlMapper *)obs_frontend_get_mapper();
+
+	connect(mapper, SIGNAL(mapLoadAction(obs_data_t *)), this,
+		SLOT(loadmap(obs_data_t *)));
+	connect(this, SIGNAL(LoadMappings()), mapper, SLOT(LoadMapping()));
+	emit(LoadMappings());
+	
+	connect(this, SIGNAL(Trigger(QString, obs_data_t *)), mapper,
+		SLOT(TriggerEvent(QString, obs_data_t *)));
 	obs_hotkey_enable_background_press(true);
+	blog(LOG_INFO, "Hotkey Controller Loaded");
 }
 
 void HKC::AddHK(QKeySequence ks)
@@ -73,28 +88,25 @@ void HKC::DoQHK()
 	
 	QHotkey *x = qobject_cast<QHotkey *>(sender());
 	auto y = x->shortcut();
-	//if (!pressmap[y]->pressed) {
-	blog(1, "Qhotkey Pressed  -- %s", y.toString().toStdString().c_str());
-	obs_data_set_string(data, "Hotkey",
-			    y.toString().simplified().toStdString().c_str());
-	//	pressmap[y]->pressed = true;
+	blog(1, "Qhotkey Pressed  -- %s",
+	     y.toString().simplified().toStdString().c_str());
+	obs_data_set_string(
+		data, "Hotkey",y.toString().simplified().toStdString().c_str());
+	obs_data_set_string(data, "Type", "Hotkeys");
 	emit(Trigger("Hotkeys", data));
-
-	//	} else {
-	// blog(1, "Qhotkey Released  -- %s", y.toString().toStdString().c_str());
-	//  pressmap[y]->pressed = false;
-	//	}
 }
 
 
 void HKC::loadmap(obs_data_t *map)
 {
-	if (QString(obs_data_get_string(map, "triggertype")).simplified() ==
-	    "Hotkeys") {
-		obs_data_t * ts = obs_data_create_from_json(
-			obs_data_get_string(map, "triggerstring"));
+	obs_data_t *ts =obs_data_create_from_json(obs_data_get_string(map, "trigger"));
+	if (QString(obs_data_get_string(ts, "Type")) ==
+	    QString("Hotkeys")) {
+	
 
 		AddHK(QKeySequence(obs_data_get_string(ts, "Hotkey")));
+		blog(LOG_INFO, "add hotkey, %s",
+		     obs_data_get_string(ts, "Hotkey"));
 	}
 }
 
