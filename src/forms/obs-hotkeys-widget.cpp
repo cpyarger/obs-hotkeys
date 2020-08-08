@@ -22,10 +22,10 @@ OBSHotkeysWidget::OBSHotkeysWidget() : ui(new Ui::OBSHotkeysWidget)
 {
 	ui->setupUi(this);
 	ControlMapper *map = (ControlMapper *)obs_frontend_get_mapper();
-	connect(map, SIGNAL(EditTrigger(QString, obs_data_t *)), this,	SLOT(EditTrigger(QString, obs_data_t *)));
+	connect(map, SIGNAL(edit_trigger(QString, obs_data_t *)), this,	SLOT(EditTrigger(QString, obs_data_t *)));
 	connect(ui->keySequenceEdit, SIGNAL(keySequenceChanged(QKeySequence)),this, SLOT(dothing(QKeySequence)));
-	connect(this, SIGNAL(updated(QString, obs_data_t *)), map,SLOT(UpdateTrigger(QString, obs_data_t *)));
-	connect(map, SIGNAL(ResetToDefaults()), this, SLOT(ResetToDefaults()));
+	connect(this, SIGNAL(updated(QString, obs_data_t *)), map,SLOT(update_trigger(QString, obs_data_t *)));
+	connect(map, SIGNAL(reset_to_defaults()), this, SLOT(ResetToDefaults()));
 }
 OBSHotkeysWidget::~OBSHotkeysWidget()
 {

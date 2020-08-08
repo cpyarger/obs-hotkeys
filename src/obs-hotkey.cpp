@@ -56,13 +56,13 @@ HKC::HKC()
 {
 	ControlMapper *mapper = (ControlMapper *)obs_frontend_get_mapper();
 
-	connect(mapper, SIGNAL(mapLoadAction(obs_data_t *)), this,
+	connect(mapper, SIGNAL(map_load_action(obs_data_t *)), this,
 		SLOT(loadmap(obs_data_t *)));
-	connect(this, SIGNAL(LoadMappings()), mapper, SLOT(LoadMapping()));
+	connect(this, SIGNAL(LoadMappings()), mapper, SLOT(load_mapping()));
 	emit(LoadMappings());
 	
 	connect(this, SIGNAL(Trigger(QString, obs_data_t *)), mapper,
-		SLOT(TriggerEvent(QString, obs_data_t *)));
+		SLOT(trigger_event(QString, obs_data_t *)));
 	obs_hotkey_enable_background_press(true);
 	blog(LOG_INFO, "Hotkey Controller Loaded");
 }
